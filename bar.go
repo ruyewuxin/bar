@@ -5,42 +5,61 @@ import (
 	"strings"
 )
 
+const (
+	defaultGraph = "█"
+	defaultStep  = 1
+)
+
 type Bar struct {
-	percent int    //百分比
-	cur     int    //当前进度位置
-	total   int    //总进度
-	rate    string //进度条
-	graph   string //显示符号
+	cur         int    //当前进度位置
+	total       int    //总进度
+	step        int    //步长
+	percent     int    //百分比
+	graph       string //显示符号
+	progressBar string //进度条
 }
 
-func (bar *Bar) NewOption(start, total int) {
+func (bar *Bar) NewBar(start, total int) {
 	bar.cur = start
 	bar.total = total
+	bar.step = defaultStep
+	bar.percent = bar.getPercent()
+	bar.graph = defaultGraph
+}
+
+func (bar *Bar) SetGraph(graph string) {
 	if bar.graph == "" {
-		bar.graph = "█"
-	}
-	bar.percent = bar.getPercent()
-	for i := 0; i < int(bar.percent); i += 2 {
-		bar.rate += bar.graph //初始化进度条位置
+		bar.graph = defaultGraph
+	} else {
+		bar.graph = graph
 	}
 }
 
-func (bar *Bar) NewOptionWithGraph(start, total int, graph string) {
-	bar.graph = graph
-	bar.NewOption(start, total)
+func (bar *Bar) SetStep(step int) {
+	if bar.step < 1 {
+		bar.step = defaultStep
+	} else {
+		bar.step = step
+	}
 }
 
-func (bar *Bar) Play(cur int) {
-	bar.cur = cur
-
+func (bar *Bar) Play() {
 	bar.percent = bar.getPercent()
-	bar.rate = strings.Repeat(bar.graph, bar.percent/2)
+	bar.progressBar = strings.Repeat(bar.graph, bar.percent/2)
 
-	fmt.Printf("\r[%-50s]%3d%%  %8d/%d", bar.rate, bar.percent, bar.cur, bar.total)
+	fmt.Printf("\r[%-50s]%3d%%  %8d/%d", bar.progressBar, bar.percent, bar.cur, bar.total)
 }
 
 func (bar *Bar) getPercent() int {
 	return int(float32(bar.cur) / float32(bar.total) * 100)
+}
+
+func (bar *Bar) Increment() {
+	if bar.cur+bar.step > bar.total {
+		bar.cur = bar.total
+	} else {
+		bar.cur += bar.step
+	}
 }
 
 func (bar *Bar) Finish() {
