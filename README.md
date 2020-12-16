@@ -13,10 +13,11 @@ import (
 
 func main() {
 	var bar bar.Bar
-	bar.NewOption(0, 100)
+	bar.NewBar(0, 100)
 	for i := 0; i <= 100; i++ {
 		time.Sleep(100 * time.Millisecond)
-		bar.Play(i)
+		bar.Increment()
+		bar.Play()
 	}
 	bar.Finish()
 }
